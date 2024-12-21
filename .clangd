@@ -5,6 +5,7 @@ Diagnostics:
       bugprone-easily-swappable-parameters,
       misc-non-private-member-variables-in-classes,
       misc-use-anonymous-namespace,
+      readability-magic-numbers,
     ]
 
 ---
