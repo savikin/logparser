@@ -3,12 +3,21 @@
 #include <charconv>
 #include <cstdint>
 #include <optional>
+#include <string>
 
 /* Works with the hh:mm time format */
 struct Time {
   int8_t hrs;
   int8_t min;
 
+  auto operator<=>(const Time &) const = default;
+  friend auto operator-(Time lhs, Time rhs) -> int64_t {
+    return (lhs.hrs * 60LL + lhs.min) - (rhs.hrs * 60LL + rhs.min);
+  }
+
+  static auto parse(const std::string &str) -> std::optional<Time> {
+    return parse(str.c_str());
+  }
   static auto parse(const char *ptr) -> std::optional<Time> {
     // isdigit from libc can depend on locale (at least on msvc), hence this
     // (it shouldn't but it can)
@@ -30,9 +39,15 @@ struct Time {
 
     // 01234
     // hh:mm
-    auto [p1, ec1] = std::from_chars(ptr + 0, ptr + 1, hrs);
-    auto [p2, ec2] = std::from_chars(ptr + 3, ptr + 4, hrs);
+    auto [p1, ec1] = std::from_chars(ptr + 0, ptr + 1 + 1, hrs);
+    auto [p2, ec2] = std::from_chars(ptr + 3, ptr + 4 + 1, min);
     if (ec1 != std::errc() || ec2 != std::errc()) {
+      return std::nullopt;
+    }
+    if (!(0 <= hrs && hrs <= 23)) { // NOLINT (it's more readable this way)
+      return std::nullopt;
+    }
+    if (!(0 <= min && min <= 59)) { // NOLINT (it's more readable this way)
       return std::nullopt;
     }
 
