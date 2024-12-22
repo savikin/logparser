@@ -51,6 +51,6 @@ auto main(int argc, char **argv) -> int {
               << e.what()
               << "\n"
                  "Линия "
-              << e.lineno << ": " << e.line << '\n';
+              << e.lineno << ": " << e.line.value_or("") << '\n';
   }
 }

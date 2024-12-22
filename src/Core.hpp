@@ -16,11 +16,14 @@
 #include <vector>
 
 struct CoreLogFatalError : public std::runtime_error {
-  std::string line;
+  std::optional<std::string> line;
   int64_t lineno;
 
   CoreLogFatalError(const std::string &message, int64_t lineno)
       : std::runtime_error(message), lineno(lineno) {}
+  CoreLogFatalError(const std::string &message, int64_t lineno,
+                    const std::string &line)
+      : std::runtime_error(message), lineno(lineno), line(line) {}
 };
 
 /* Implements all the event processing 

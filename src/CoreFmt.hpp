@@ -19,7 +19,7 @@ static inline void init0(Core &core, const std::string &input) {
   auto value = StringUtils::atoi(input);
   if (!value.has_value()) {
     throw CoreLogFatalError{"Первая строка должна содержать количество столов",
-                            core.lineno};
+                            core.lineno, input};
   }
   core.init0(value.value());
 };
@@ -28,14 +28,14 @@ static inline auto init1(Core &core, const std::string &input) -> std::string {
   if (input.size() < 11) {
     throw CoreLogFatalError{"Вторая строка должна содержать время "
                             "начала и конца работы заведения",
-                            core.lineno};
+                            core.lineno, input};
   }
   // 0123456789
   // hh:mm hh:mm
   auto start = Time::parse(input.c_str());
   auto end = Time::parse(input.c_str() + 6);
   if (!(start.has_value() && end.has_value())) {
-    throw CoreLogFatalError{"Ошибка чтения времени", core.lineno};
+    throw CoreLogFatalError{"Ошибка чтения времени", core.lineno, input};
   }
   core.init1(start.value(), end.value());
   return start->print();
@@ -45,7 +45,7 @@ static inline void init2(Core &core, const std::string &input) {
     if (!value.has_value()) {
       throw CoreLogFatalError{"Третья строка должна содержать стоимость "
                               "часа в компьютерном клубе",
-                              core.lineno};
+                              core.lineno, input};
     }
     core.init2(value.value());
 }
@@ -56,15 +56,15 @@ static inline auto process_working(Core &core, const std::string &input)
   if (tokens.size() < 3) {
     throw CoreLogFatalError{
         "Минимальное возможное событие - <время> <тип> <имя клиента>",
-        core.lineno};
+        core.lineno, input};
   }
   auto time = Time::parse(tokens[0]);
   if (!time.has_value()) {
-    throw CoreLogFatalError{"Ошибка парсинга времени события", core.lineno};
+    throw CoreLogFatalError{"Ошибка парсинга времени события", core.lineno, input};
   }
   auto type = StringUtils::atoi(tokens[1]);
   if (!type.has_value()) {
-    throw CoreLogFatalError{"Ошибка парсинга типа события", core.lineno};
+    throw CoreLogFatalError{"Ошибка парсинга типа события", core.lineno, input};
   }
   auto name = tokens[2];
   for (char chr : name) {
@@ -75,7 +75,7 @@ static inline auto process_working(Core &core, const std::string &input)
       break;
 
     default:
-      throw CoreLogFatalError{"Встречено невалидное имя", core.lineno};
+      throw CoreLogFatalError{"Встречено невалидное имя", core.lineno, input};
     };
   }
 
@@ -95,11 +95,11 @@ static inline auto process_working(Core &core, const std::string &input)
   case Core::InAttach::TypeID: {
     if (tokens.size() < 4) {
       throw CoreLogFatalError{"Для данного типа требуется номер стола",
-                              core.lineno};
+                              core.lineno, input};
     }
     auto tableno = StringUtils::atoi(tokens[3]);
     if (!tableno.has_value()) {
-      throw CoreLogFatalError{"Ошибка парсинга номера стола", core.lineno};
+      throw CoreLogFatalError{"Ошибка парсинга номера стола", core.lineno, input};
     }
 
     auto res = core.processAttach(Core::InAttach{
@@ -150,7 +150,7 @@ static inline auto process_working(Core &core, const std::string &input)
   }
 
   default:
-    throw CoreLogFatalError{"Неизвестный тип события", core.lineno};
+    throw CoreLogFatalError{"Неизвестный тип события", core.lineno, input};
   }
 };
 };
@@ -173,7 +173,7 @@ static inline auto process(Core &core, const std::string &input)
     return internal::process_working(core, input);
   }
   default: {
-    throw CoreLogFatalError{"Ошибка внутреннего состояния", core.lineno};
+    throw CoreLogFatalError{"Ошибка внутреннего состояния", core.lineno, input};
   }
   }
 }
