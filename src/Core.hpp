@@ -23,7 +23,7 @@ struct CoreLogFatalError : public std::runtime_error {
       : std::runtime_error(message), lineno(lineno) {}
   CoreLogFatalError(const std::string &message, int64_t lineno,
                     const std::string &line)
-      : std::runtime_error(message), lineno(lineno), line(line) {}
+      : std::runtime_error(message), line(line), lineno(lineno) {}
 };
 
 /* Implements all the event processing 
