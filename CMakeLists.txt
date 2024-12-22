@@ -20,7 +20,7 @@ if ((CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(logparser_sanitized PUBLIC -Wall -Wextra -Wpedantic -fsanitize=address,undefined,leak)
   target_link_options(logparser_sanitized PUBLIC -fsanitize=address,undefined,leak)
 
-  add_executable(tests_sanitized src/main.cpp)
+  add_executable(tests_sanitized src/test.cpp)
   target_include_directories(tests_sanitized PUBLIC src)
   target_link_libraries(tests_sanitized -lgtest -lgtest_main)
   target_compile_options(tests_sanitized PUBLIC -Wall -Wextra -Wpedantic -fsanitize=address,undefined,leak)
