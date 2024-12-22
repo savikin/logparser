@@ -5,6 +5,10 @@
 make
 ```
 Builds the binary in ./build/logparser
+    - Alternatively
+```sh
+mkdir -p build && cd build && cmake .. && cmake --build .
+```
 
 - Tests
 ```sh
