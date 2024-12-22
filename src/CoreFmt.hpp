@@ -68,15 +68,17 @@ static inline auto process_working(Core &core, const std::string &input)
   }
   auto name = tokens[2];
   for (char chr : name) {
-    switch (chr) {
-    case 'a' ... 'z':
-    case '0' ... '9':
-    case '_':
-      break;
+    if ('a' <= chr && chr <= 'z') {
+      continue;
+    }
+    if ('0' <= chr && chr <= '9') {
+      continue;
+    }
+    if (chr == '_') {
+      continue;
+    }
 
-    default:
-      throw CoreLogFatalError{"Встречено невалидное имя", core.lineno, input};
-    };
+    throw CoreLogFatalError{"Встречено невалидное имя", core.lineno, input};
   }
 
   // Switch on event type
