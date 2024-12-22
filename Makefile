@@ -1,5 +1,5 @@
 all:
-	mkdir -p build && cd build && cmake .. && cmake --build .
+	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 
 test: all
 	./build/tests
