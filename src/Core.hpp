@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -12,6 +13,7 @@
 
 #include <Time.hpp>
 #include <util/ScopeIncrementor.hpp>
+#include <vector>
 
 struct CoreLogFatalError : public std::runtime_error {
   std::string line;
@@ -21,6 +23,9 @@ struct CoreLogFatalError : public std::runtime_error {
       : std::runtime_error(message), lineno(lineno) {}
 };
 
+/* Implements all the event processing 
+ * Working with text is implemented separately in CoreFmt
+ * */
 struct Core {
   struct InArrive {
     static constexpr auto TypeID = 1;
@@ -79,8 +84,20 @@ struct Core {
         return "NoSuchTable";
       case ErrorType::ICANWAITNOLONGER:
         return "ICanWaitNoLonger!";
+      default:
+        throw CoreLogFatalError{"Ошибка состояния OutError", -1};
       }
     }
+  };
+  struct OutClose {
+    struct TableIncome {
+      int64_t number;
+      int64_t income;
+      int64_t minutes;
+    };
+    Time close_time;
+    std::vector<OutDepart> departures;
+    std::vector<TableIncome> tables;
   };
   // NOTE: usage code of this struct relies on default 
   // construction of optional being empty
@@ -181,7 +198,7 @@ struct Core {
       return OutError{Core::OutError::ErrorType::CLIENTUNKNOWN};
     }
 
-    if (event.tableno >= tables) {
+    if (event.tableno > tables) {
       return OutError{Core::OutError::ErrorType::NOSUCHTABLE};
     }
 
@@ -244,8 +261,8 @@ struct Core {
     }
 
     auto table = data_customer[event.name];
+    data_customer.erase(event.name);
     if (!table.has_value()) {
-      data_customer.erase(event.name);
       return {};
     }
 
@@ -263,11 +280,9 @@ struct Core {
             TableStats::Customer{.name = event.name, .start_time = event.when};
 
         // Remove client from a queue
-        if (queue_position.contains(event.name)) {
-          auto position = queue_position[event.name];
-          queue_position.erase(event.name);
-          queue.erase(position);
-        }
+        auto position = queue_position[name];
+        queue_position.erase(name);
+        queue.erase(position);
 
         return OutAttach{
             .table = table.value(), .name = name, .time = event.when};
@@ -278,5 +293,36 @@ struct Core {
 
     --tables_taken;
     return {};
+  }
+  [[nodiscard]] auto close() -> OutClose {
+    OutClose result{};
+
+    // Set close time
+    result.close_time = this->end;
+
+    // Account data on all tables
+    for (auto &table: data_table) {
+      table.second.account(this->end, this->hourly_price);
+    }
+    for (int64_t i = 1; i <= tables; ++i) {
+      if (data_table.contains(i)) {
+        auto table = data_table[i];
+        result.tables.push_back({i, table.income, table.minutes});
+      } else {
+        result.tables.push_back({i, 0, 0});
+      }
+    }
+
+    // Gather clients
+    // Using set to order data
+    std::set<std::string> departures;
+    for (const auto &customer : data_customer) {
+      departures.insert(customer.first);
+    }
+    for (const auto& customer: departures) {
+      result.departures.emplace_back(customer, this->end);
+    }
+
+    return result;
   }
 };

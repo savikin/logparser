@@ -1,34 +1,56 @@
-#include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
-
-#include <Core.hpp>
 #include <string>
 
-struct LogError : public std::runtime_error {
-  int64_t lineno;
-};
+#include <Core.hpp>
+#include <CoreFmt.hpp>
+
 
 static void logparse(char* filename){
   Core core{};
 
-
-  std::ifstream f(filename);
+  std::ifstream file(filename);
   std::string line;
-  while (std::getline(f, line)){
-    core.process(line);
+
+  // init0
+  std::getline(file, line);
+  CoreFmt::process(core, line);
+
+  // init1
+  std::getline(file, line);
+  auto start_time = CoreFmt::process(core, line);
+  std::cout << start_time.value() << "\n";
+
+  // init2
+  std::getline(file, line);
+  CoreFmt::process(core, line);
+
+  while (std::getline(file, line)){
+    auto res = CoreFmt::process(core, line);
+    std::cout << line << "\n";
+    if (res.has_value()){
+      std::cout << res.value() << "\n";
+    }
   }
+
+  std::cout << CoreFmt::close(core) << "\n";
 }
 
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
   try {
     if (argc != 2) {
       std::cout << "Неверный синтаксис вызова программы\n"
                    "Пример вызова: logparser log.txt\n";
       return 1;
     }
-  } catch (const LogError &e) {
-    std::cout << "Ошибка формата входного файла, линия " << e.lineno << '\n';
+
+    logparse(argv[1]);
+
+  } catch (const CoreLogFatalError &e) {
+    std::cout << "Ошибка формата входного файла\n"
+              << e.what()
+              << "\n"
+                 "Линия "
+              << e.lineno << ": " << e.line << '\n';
   }
 }

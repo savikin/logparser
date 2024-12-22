@@ -33,6 +33,12 @@ struct Time {
     return {buf, sizeof(buf)};
   };
 
+  static auto from_minutes(int64_t minutes) -> Time {
+    int64_t hours = minutes / 60;
+    minutes -= hours * 60;
+    return Time{.hrs = static_cast<int8_t>(hours),
+                .min = static_cast<int8_t>(minutes)};
+  }
   static auto parse(const std::string &str) -> std::optional<Time> {
     return parse(str.c_str());
   }
