@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <optional>
+#include <ostream>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -111,12 +113,14 @@ struct Core {
     int64_t minutes;
 
     void account(Time end, int64_t hourly_price) {
-      const auto timespent = end - this->customer->start_time;
-      const auto hours =
-          (timespent % 60 == 0) ? timespent / 60 : (timespent / 60) + 1;
-      this->minutes += timespent;
-      this->income += hours * hourly_price;
-      this->customer.reset();
+      if (this->customer.has_value()) {
+        const auto timespent = end - this->customer->start_time;
+        const auto hours =
+            (timespent % 60 == 0) ? timespent / 60 : (timespent / 60) + 1;
+        this->minutes += timespent;
+        this->income += hours * hourly_price;
+        this->customer.reset();
+      }
     }
   };
   enum struct Stage {
@@ -270,7 +274,11 @@ struct Core {
 
     while (queue_index < queue_end_index) {
       if (queue.contains(queue_index)) {
-        auto name = queue[queue_index];
+        auto name = queue.at(queue_index);
+
+        // Remove client from a queue
+        queue_position.erase(name);
+        queue.erase(queue_index);
 
         // Set new table
         data_customer[name] = table;
@@ -279,10 +287,6 @@ struct Core {
         tablestat.customer =
             TableStats::Customer{.name = event.name, .start_time = event.when};
 
-        // Remove client from a queue
-        auto position = queue_position[name];
-        queue_position.erase(name);
-        queue.erase(position);
 
         return OutAttach{
             .table = table.value(), .name = name, .time = event.when};
