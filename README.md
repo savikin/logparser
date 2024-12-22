@@ -1,17 +1,20 @@
 # Build instructions
 
-- Build
+Build system uses CMake
+
+## Build
 ```sh
 make
 ```
-Builds the binary in ./build/logparser
-
-    - Alternatively
+or
 ```sh
 mkdir -p build && cd build && cmake .. && cmake --build .
 ```
 
-- Tests
+Builds the binary in ./build/logparser
+
+
+## Tests, (Google Tests, links with system)
 ```sh
 make test
 ```
