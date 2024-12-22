@@ -1,3 +1,8 @@
+# Project description
+- Language: C++20
+- Build: CMake
+- Testing: GTest
+
 # Build instructions
 
 Build system uses CMake
