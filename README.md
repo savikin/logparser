@@ -11,12 +11,7 @@ Build system uses CMake
 ```sh
 make
 ```
-or
-```sh
-mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
-```
-
-Builds the binary in ./build/logparser
+Builds the binary in ./build/logparser and ./build/logparser_sanitized
 
 
 ## Tests, (Google Tests, links with system)
@@ -24,6 +19,11 @@ Builds the binary in ./build/logparser
 make test
 ```
 Runs tests
+
+```sh
+make test_sanitized
+```
+Runs tests with sanitizers on
 
 # Usage example
 ./build/logparser test1.txt
