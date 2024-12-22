@@ -32,6 +32,11 @@ TEST(Time, TimeParsing) {
   ASSERT_EQ(time3->hrs, 23);
   ASSERT_EQ(time3->min, 59);
 }
+TEST(Time, TimePrint) {
+  ASSERT_EQ(Time(0,0).print(), "00:00");
+  ASSERT_EQ(Time(7,9).print(), "07:09");
+  ASSERT_EQ(Time(23,59).print(), "23:59");
+}
 TEST(Time, TimeComparisons) {
   ASSERT_LT(Time(10, 20), Time(13, 20));
   ASSERT_GT(Time(13, 20), Time(10, 20));

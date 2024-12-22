@@ -15,6 +15,24 @@ struct Time {
     return (lhs.hrs * 60LL + lhs.min) - (rhs.hrs * 60LL + rhs.min);
   }
 
+  [[nodiscard]] auto print() const -> std::string {
+    char buf[5]{'0', '0', ':', '0', '0'};
+    // hh:mm
+    // 01234
+    if (hrs < 10) {
+      std::to_chars(&buf[1], &buf[1] + 1, hrs);
+    } else {
+      std::to_chars(&buf[0], &buf[1] + 1, hrs);
+    }
+    if (min < 10) {
+      std::to_chars(&buf[4], &buf[4] + 1, min);
+    } else {
+      std::to_chars(&buf[3], &buf[4] + 1, min);
+    }
+
+    return {buf, sizeof(buf)};
+  };
+
   static auto parse(const std::string &str) -> std::optional<Time> {
     return parse(str.c_str());
   }
