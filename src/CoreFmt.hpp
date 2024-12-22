@@ -67,6 +67,17 @@ static inline auto process_working(Core &core, const std::string &input)
     throw CoreLogFatalError{"Ошибка парсинга типа события", core.lineno};
   }
   auto name = tokens[2];
+  for (char chr : name) {
+    switch (chr) {
+    case 'a' ... 'z':
+    case '0' ... '9':
+    case '_':
+      break;
+
+    default:
+      throw CoreLogFatalError{"Встречено невалидное имя", core.lineno};
+    };
+  }
 
   // Switch on event type
   switch (type.value()) {
