@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdlib>
 #include <format>
 #include <optional>
@@ -67,17 +68,18 @@ static inline auto process_working(Core &core, const std::string &input)
     throw CoreLogFatalError{"Ошибка парсинга типа события", core.lineno, input};
   }
   auto name = tokens[2];
-  for (char chr : name) {
-    if ('a' <= chr && chr <= 'z') {
-      continue;
-    }
-    if ('0' <= chr && chr <= '9') {
-      continue;
-    }
-    if (chr == '_') {
-      continue;
-    }
-
+  if (!std::ranges::all_of(name, [](char chr) {
+        if ('a' <= chr && chr <= 'z') {
+          return true;
+        }
+        if ('0' <= chr && chr <= '9') {
+          return true;
+        }
+        if (chr == '_') {
+          return true;
+        }
+        return false;
+      })) {
     throw CoreLogFatalError{"Встречено невалидное имя", core.lineno, input};
   }
 
