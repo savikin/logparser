@@ -8,22 +8,21 @@
 Build system uses CMake
 
 ## Build
+Build the binary in ./build/logparser and ./build/logparser_sanitized:
 ```sh
 make
 ```
-Builds the binary in ./build/logparser and ./build/logparser_sanitized
 
-
-## Tests, (Google Tests, links with system)
+## Test (Google Tests, links with system)
+Run test
 ```sh
 make test
 ```
-Runs tests
 
+Run tests with sanitizers on:
 ```sh
 make test_sanitized
 ```
-Runs tests with sanitizers on
 
 # Usage example
 ./build/logparser test1.txt
