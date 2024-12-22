@@ -5,8 +5,9 @@ project(logparser)
 set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-add_compile_options(-Wall -Wextra -Wpedantic -fsanitize=address,undefined,leak)
-add_link_options(-fsanitize=address,undefined,leak)
+#TODO: branch those on MSVC
+#add_compile_options(-Wall -Wextra -Wpedantic -fsanitize=address,undefined,leak)
+#add_link_options(-fsanitize=address,undefined,leak)
 
 add_executable(logparser src/main.cpp)
 target_include_directories(logparser PUBLIC src)
